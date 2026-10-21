@@ -1,0 +1,477 @@
+/* Component styles. Every rule is scoped under .howl-root so the
+   component neither leaks into a host page nor inherits its typography;
+   the extra class also outweighs a host's bare `pre`/`.panel` rules,
+   which otherwise win over inheritance and resize our code.
+
+   Three variables are the intended override points — set them on
+   .howl-root from the host to match its own code blocks:
+
+     --howl-mono        code font family
+     --howl-code-size   code font size
+     --howl-rule        colour of the one-sided rules */
+
+.howl-root {
+  --howl-mono: ui-monospace, Menlo, Consolas, monospace;
+  --howl-code-size: 0.95rem;
+  --howl-rule: #8886;
+  --howl-error: firebrick;
+  --howl-ok: seagreen;
+
+  color-scheme: light dark;
+  text-align: left;
+}
+
+.howl-root *,
+.howl-root *::before,
+.howl-root *::after { box-sizing: border-box; }
+
+.howl-root main { display: flex; flex-direction: column; gap: 1rem; }
+
+.howl-root button {
+  font: inherit;
+  font-size: 0.85em;
+  padding: 0.1rem 0.5rem;
+  cursor: pointer;
+  color: inherit;
+  background: none;
+  border: 1px solid var(--howl-rule);
+  border-radius: 0.25rem;
+}
+
+.howl-root button:disabled { opacity: 0.5; cursor: default; }
+.howl-root button.active { font-weight: 700; }
+
+.howl-root .toolbar,
+.howl-root .examples,
+.howl-root .layout-toggle,
+.howl-root .panel-head,
+.howl-root .tab-strip {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.4rem;
+}
+
+.howl-root .toolbar { margin-bottom: 0.4rem; }
+
+/* Variant tabs sit opposite the controls, at the top right. */
+.howl-root .toolbar .variants { margin-left: auto; }
+.howl-root .tab[aria-selected="true"] { border-color: currentColor; }
+.howl-root .hint { opacity: 0.7; font-size: 0.85em; }
+
+/* Sized by its content, like the code blocks it sits among, rather than
+   held open at a fixed height. */
+.howl-root .editor { margin: 1.5rem 0; }
+.howl-root .cm-editor { max-height: 36rem; }
+.howl-root .cm-editor,
+.howl-root .cm-editor.cm-focused { outline: none; }
+
+/* Code-ish blocks: the host's own `pre` rule beats inheritance, so
+   family and size are set explicitly to keep the editor, the transcript
+   and the diagnostics all at one size. */
+.howl-root .transcript,
+.howl-root .diagnostic,
+.howl-root .constraint-tree,
+.howl-root .cm-scroller {
+  font-family: var(--howl-mono);
+  font-size: var(--howl-code-size);
+}
+
+.howl-root .transcript,
+.howl-root .diagnostic {
+  margin: 1.5rem 0;
+  padding: 0.25rem 0 0.25rem 0.9rem;
+  border: none;
+  border-left: 2px solid var(--howl-ok);
+  white-space: pre-wrap;
+  overflow-x: auto;
+}
+
+.howl-root .diagnostic { border-left-color: var(--howl-error); }
+
+.howl-root .diagnostic-head { margin-bottom: 0.5rem; }
+.howl-root .diagnostic-phase {
+  font-weight: 700;
+  color: var(--howl-error);
+  margin-right: 0.5rem;
+}
+.howl-root .diagnostic-where { opacity: 0.7; }
+.howl-root .diagnostic-text { margin: 0; }
+
+.howl-root .diagnostic-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.howl-root .renderer-name {
+  margin: 0.75rem 0 0.25rem;
+  font-size: 0.85em;
+  opacity: 0.7;
+}
+
+.howl-root .placeholder {
+  margin: 1.5rem 0;
+  opacity: 0.7;
+  font-size: 0.9em;
+}
+
+.howl-root .constraint-graph { overflow-x: auto; }
+
+/* Flow view. Hues are the validated categorical slots; each also carries a
+   dash pattern so identity never rests on colour alone. Dark values are
+   stepped for the dark surface, not flipped. */
+.howl-root {
+  --howl-flow-1: #2a78d6;
+  --howl-flow-2: #eb6834;
+  --howl-flow-3: #1baf7a;
+  --howl-flow-x: #8a8a86;
+  /* Tip text is ink, never a hue: which track a tip belongs to is said
+     once, by its border. The tint is shared with the editor's hover
+     highlight, and that sharing is the whole point — it is what reads a
+     variable in the tip back to the token it stands for. */
+  --howl-ink: #1b1b1f;
+  --howl-tint: #ffec9966;
+  --howl-tint-alt: #cdbcff66;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:where(:not([data-theme="light"])) .howl-root {
+    --howl-flow-1: #3987e5;
+    --howl-flow-2: #d95926;
+    --howl-flow-3: #199e70;
+    --howl-ink: #e8e8ea;
+    --howl-tint: #ffec9940;
+    --howl-tint-alt: #cdbcff40;
+  }
+}
+
+:root[data-theme="dark"] .howl-root {
+  --howl-flow-1: #3987e5;
+  --howl-flow-2: #d95926;
+  --howl-flow-3: #199e70;
+  --howl-ink: #e8e8ea;
+  --howl-tint: #ffec9940;
+  --howl-tint-alt: #cdbcff40;
+}
+
+.howl-root .flow-view {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+  gap: 1rem;
+  margin: 1.5rem 0;
+}
+
+.howl-root .flow-code { min-width: 0; }
+
+.howl-root .flow-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  font-size: var(--howl-code-size);
+  font-family: var(--howl-mono);
+  min-width: 0;
+}
+
+.howl-root .flow-sig {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  padding-left: 0.6rem;
+  border-left: 2px solid var(--howl-rule);
+  overflow-x: auto;
+}
+
+.howl-root .flow-sig-name { font-weight: 700; }
+.howl-root .flow-sig-type { white-space: nowrap; }
+.howl-root .flow-slot { padding: 0 0.05rem; }
+
+.howl-root .flow-arrows {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: visible;
+}
+
+.howl-root .flow-arrow {
+  fill: none;
+  stroke-width: 2;
+  pointer-events: stroke;
+}
+
+.howl-root .flow-hue-1 { stroke: var(--howl-flow-1); color: var(--howl-flow-1); }
+.howl-root .flow-hue-2 {
+  stroke: var(--howl-flow-2);
+  color: var(--howl-flow-2);
+  stroke-dasharray: 6 3;
+}
+.howl-root .flow-hue-3 {
+  stroke: var(--howl-flow-3);
+  color: var(--howl-flow-3);
+  stroke-dasharray: 2 3;
+}
+.howl-root .flow-hue-x { stroke: var(--howl-flow-x); color: var(--howl-flow-x); }
+
+.howl-root .flow-dot {
+  fill: currentColor;
+  stroke: var(--howl-surface, #fff);
+  stroke-width: 1.5;
+  cursor: help;
+  pointer-events: all;
+}
+
+/* One step back from the hovered arrow; everything not attached to it. */
+.howl-root .flow-faded { opacity: 0.15; }
+
+.howl-root .flow-tip {
+  position: absolute;
+  z-index: 2;
+  max-width: 24rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  padding: 0.4rem 0.6rem;
+  border-left: 2px solid currentColor;
+  background: var(--howl-surface, #fff);
+  box-shadow: 0 1px 6px #0003;
+  font-size: 0.9em;
+  pointer-events: none;
+}
+
+/* The tip is two lines of type: the constraint, and the structure it came
+   out of. All of it ink — the hue is already said by the border. Weight
+   picks out the two pieces the constraint relates; the arriving type also
+   takes the hover tint, matching the token lit in the editor. No
+   underlines: these sit on code. */
+.howl-root .flow-tip-relation,
+.howl-root .flow-tip-shape {
+  white-space: nowrap;
+  color: var(--howl-ink);
+  text-decoration: none;
+}
+
+/* Scaffolding: the parentheses and arrows that hold the type together. */
+.howl-root .flow-tip-plain { opacity: 0.5; }
+
+/* The one-word reason a hop carries when it has no structure to show. */
+.howl-root .flow-tip-note {
+  color: var(--howl-ink);
+  font-style: italic;
+  opacity: 0.7;
+}
+
+.howl-root .flow-mark-sub,
+.howl-root .flow-mark-sup,
+.howl-root .flow-mark-bare { font-weight: 700; }
+.howl-root .flow-mark-sub,
+.howl-root .flow-mark-sup {
+  border-radius: 2px;
+  padding: 0 0.1em;
+}
+.howl-root .flow-mark-sub { background: var(--howl-tint); }
+.howl-root .flow-mark-sup { background: var(--howl-tint-alt); }
+
+.howl-root .constraint-tree { line-height: 1.5; }
+.howl-root .tree-line {
+  display: flex;
+  align-items: baseline;
+  gap: 0.25rem;
+  padding: 0.05rem 0;
+}
+.howl-root .tree-toggle {
+  border: none;
+  background: none;
+  cursor: pointer;
+  padding: 0;
+  width: 1rem;
+  text-align: center;
+  font: inherit;
+  opacity: 0.6;
+}
+.howl-root .tree-toggle.tree-leaf { display: inline-block; }
+.howl-root .tree-label { white-space: nowrap; }
+
+.howl-root .cm-linked-hover { background: var(--howl-tint); }
+.howl-root .cm-linked-demand { background: var(--howl-tint-alt); }
+.howl-root .cm-linked-pinned { background: #b3d9ff66; }
+
+.howl-root .reference {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 0.2rem 1rem;
+  margin: 0;
+}
+.howl-root .reference dd { margin: 0; }
+.howl-root .reference-details {
+  border: 1px solid var(--howl-rule);
+  padding: 0.5rem 0.75rem;
+}
+.howl-root .reference-details summary { cursor: pointer; }
+
+.howl-root webcola-cnd-graph {
+  width: 100%;
+  height: 30rem;
+  background: #fff;
+  white-space: normal;
+}
+
+/* Flow, read beside the code (web/src/flow2.jsx). The editor keeps its
+   own column and nothing is drawn over it; a card sits at the height of
+   the line it is about, and a leader spans the gap when cards collide
+   and one has to be pushed down. */
+.howl-root.flow2 {
+  display: grid;
+  grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+  grid-template-areas:
+    ".    legend"
+    "code rail";
+  gap: 0.4rem 1rem;
+  align-items: start;
+  margin: 1.5rem 0;
+}
+
+.howl-root .flow2-legend { grid-area: legend; min-width: 0; }
+.howl-root .flow2-code { grid-area: code; min-width: 0; }
+
+.howl-root .flow2-rail {
+  grid-area: rail;
+  min-width: 0;
+  font-family: var(--howl-mono);
+  font-size: var(--howl-code-size);
+}
+
+.howl-root .flow2-head {
+  margin: 0 0 0.25rem;
+  font-family: var(--howl-mono);
+  font-size: 0.8em;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--howl-ink);
+  opacity: 0.55;
+}
+
+.howl-root .flow2-head code {
+  text-transform: none;
+  letter-spacing: 0;
+  opacity: 1;
+}
+
+.howl-root .flow2-head-flows { margin-top: 0.5rem; }
+
+.howl-root .flow2-picker {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  margin-bottom: 0.5rem;
+}
+
+.howl-root .flow2-chip {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.35em;
+  padding: 0.1rem 0.45rem;
+  border: none;
+  border-left: 2px solid currentColor;
+  background: none;
+  cursor: pointer;
+  font: inherit;
+  color: var(--howl-flow-x);
+  opacity: 0.55;
+}
+
+.howl-root .flow2-chip-on { opacity: 1; }
+.howl-root .flow2-chip code { color: var(--howl-ink); font-weight: 700; }
+.howl-root .flow2-chip-from {
+  color: var(--howl-ink);
+  font-size: 0.85em;
+  opacity: 0.6;
+}
+
+/* The track is the coordinate space the cards are placed in. */
+.howl-root .flow2-track {
+  position: relative;
+  min-height: 6rem;
+}
+
+.howl-root .flow2-leaders {
+  position: absolute;
+  inset: 0;
+  overflow: visible;
+  pointer-events: none;
+}
+
+.howl-root .flow2-leader {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.5;
+  opacity: 0.5;
+}
+
+.howl-root .flow2-card {
+  position: absolute;
+  left: 22px;
+  right: 0;
+  padding: 0.15rem 0 0.15rem 0.5rem;
+  border-left: 2px solid currentColor;
+  background: var(--howl-surface, #fff);
+  cursor: help;
+}
+
+.howl-root .flow2-card-on { box-shadow: 0 1px 6px #0002; }
+
+.howl-root .flow2-card-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.5em;
+  min-width: 0;
+}
+
+.howl-root .flow2-line {
+  color: var(--howl-ink);
+  opacity: 0.4;
+  font-size: 0.8em;
+  white-space: nowrap;
+}
+
+/* Types are long and the rail is narrow; wrapping inside the card keeps
+   the whole view within the column, and the page, rather than running
+   off the right edge. Breaks land between the pieces of a type. */
+.howl-root .flow2-relation,
+.howl-root .flow2-shape {
+  color: var(--howl-ink);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  min-width: 0;
+}
+
+.howl-root .flow2-shape { font-size: 0.9em; display: block; }
+.howl-root .flow2-plain { opacity: 0.5; }
+
+.howl-root .flow2-note {
+  color: var(--howl-ink);
+  font-style: italic;
+  opacity: 0.7;
+  font-size: 0.9em;
+}
+
+@media (max-width: 55rem) {
+  .howl-root.flow2 {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas:
+      "legend"
+      "code"
+      "rail";
+  }
+  /* Stacked, there is no line to align to: cards read as a list. */
+  .howl-root .flow2-track { min-height: 0; }
+  .howl-root .flow2-leaders { display: none; }
+  .howl-root .flow2-card {
+    position: static;
+    left: auto;
+    right: auto;
+    margin-bottom: 0.3rem;
+  }
+}

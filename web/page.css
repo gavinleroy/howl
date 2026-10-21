@@ -1,0 +1,27 @@
+/* Chrome for the standalone dev page only. None of this ships with the
+   component: bare element rules would restyle whatever embeds it. */
+
+:root { color-scheme: light dark; }
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 1rem auto;
+  max-width: 72rem;
+  padding: 0 1rem;
+  font: 15px/1.5 ui-monospace, Menlo, Consolas, monospace;
+}
+
+h1 { font-size: 1.3rem; margin: 0 0 0.25rem; }
+h2 { font-size: 1rem; margin: 1rem 0 0.5rem; }
+.subtitle { margin: 0 0 1rem; opacity: 0.7; }
+
+/* The editor emits the same token classes a static code block gets, so a
+   host page's syntax theme paints it. This page has no such theme, so
+   stand one in here — deliberately not in the component stylesheet, where
+   it would outrank the host's own rules. */
+.pl-k  { color: #83577d; }
+.pl-c1 { color: #477a7b; }
+.pl-s,
+.pl-pds { color: #747b4d; }
+.pl-c  { color: #9e9a95; }
