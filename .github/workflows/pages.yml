@@ -6,13 +6,11 @@ on:
   pull_request:
   workflow_dispatch:
 
-# Pages deployment needs these; the build job itself only reads.
 permissions:
   contents: read
   pages: write
   id-token: write
 
-# One deploy at a time, and never cancel one midway.
 concurrency:
   group: pages
   cancel-in-progress: false
@@ -28,8 +26,6 @@ jobs:
           extra_nix_config: |
             experimental-features = nix-command flakes
 
-      # The derivation runs the Guile suite and the wasm end-to-end tests
-      # in its checkPhase, so a broken build never reaches Pages.
       - name: Build the demo page
         run: nix build .#demo --print-build-logs
 
@@ -44,7 +40,6 @@ jobs:
           path: public
 
   deploy:
-    # Pull requests are built as a check, but only main is published.
     if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
     needs: build
     runs-on: ubuntu-latest
