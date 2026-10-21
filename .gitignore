@@ -13,7 +13,3 @@
 .DS_Store
 *.swp
 .direnv/
-
-# A stray screenshot that predates the repository; safe to delete, and
-# this line can go with it.
-/x
